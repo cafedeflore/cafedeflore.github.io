@@ -1,0 +1,272 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"><title>jenkin插件的开发 | 可太南了</title><meta name="keywords" content="jenkins,dingding,feishu"><meta name="author" content="linnan"><meta name="copyright" content="linnan"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="背景在迁移飞书的过程中，原先的jenkins钉钉机器人功能也就需要迁移，别看他们工作方式很像，但是API不同，无法复用原先的钉钉通知插件。不一样体现在哪里呢，举一个最简单的文字消息的例子 123456789101112131415# 以下是两个平台的post请求的json body内容# 钉钉&amp;#123;  &quot;msgtype&quot;: &quot;text&quot;,  &amp;quot">
+<meta property="og:type" content="article">
+<meta property="og:title" content="jenkin插件的开发">
+<meta property="og:url" content="http://linnan.fun/posts/jenkins-plugin-development/index.html">
+<meta property="og:site_name" content="可太南了">
+<meta property="og:description" content="背景在迁移飞书的过程中，原先的jenkins钉钉机器人功能也就需要迁移，别看他们工作方式很像，但是API不同，无法复用原先的钉钉通知插件。不一样体现在哪里呢，举一个最简单的文字消息的例子 123456789101112131415# 以下是两个平台的post请求的json body内容# 钉钉&amp;#123;  &quot;msgtype&quot;: &quot;text&quot;,  &amp;quot">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01thiRe01Eq9yZ1XyVB_!!0-item_pic.jpg">
+<meta property="article:published_time" content="2022-05-18T12:08:20.000Z">
+<meta property="article:modified_time" content="2022-05-26T09:13:04.405Z">
+<meta property="article:author" content="linnan">
+<meta property="article:tag" content="jenkins">
+<meta property="article:tag" content="dingding">
+<meta property="article:tag" content="feishu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01thiRe01Eq9yZ1XyVB_!!0-item_pic.jpg"><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="http://linnan.fun/posts/jenkins-plugin-development/"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6/css/all.min.css" media="print" onload="this.media='all'"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.css" media="print" onload="this.media='all'"><script>const GLOBAL_CONFIG = { 
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  noticeOutdate: undefined,
+  highlight: {"plugin":"highlighjs","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false},
+  copy: {
+    success: '复制成功',
+    error: '复制错误',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  date_suffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'fancybox',
+  Snackbar: undefined,
+  source: {
+    justifiedGallery: {
+      js: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.js',
+      css: 'https://cdn.jsdelivr.net/npm/flickr-justified-gallery@2/dist/fjGallery.min.css'
+    }
+  },
+  isPhotoFigcaption: false,
+  islazyload: false,
+  isAnchor: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: 'jenkin插件的开发',
+  isPost: true,
+  isHome: false,
+  isHighlightShrink: false,
+  isToc: true,
+  postUpdate: '2022-05-26 17:13:04'
+}</script><noscript><style type="text/css">
+  #nav {
+    opacity: 1
+  }
+  .justified-gallery img {
+    opacity: 1
+  }
+
+  #recent-posts time,
+  #post-meta time {
+    display: inline !important
+  }
+</style></noscript><script>(win=>{
+    win.saveToLocal = {
+      set: function setWithExpiry(key, value, ttl) {
+        if (ttl === 0) return
+        const now = new Date()
+        const expiryDay = ttl * 86400000
+        const item = {
+          value: value,
+          expiry: now.getTime() + expiryDay,
+        }
+        localStorage.setItem(key, JSON.stringify(item))
+      },
+
+      get: function getWithExpiry(key) {
+        const itemStr = localStorage.getItem(key)
+
+        if (!itemStr) {
+          return undefined
+        }
+        const item = JSON.parse(itemStr)
+        const now = new Date()
+
+        if (now.getTime() > item.expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return item.value
+      }
+    }
+  
+    win.getScript = url => new Promise((resolve, reject) => {
+      const script = document.createElement('script')
+      script.src = url
+      script.async = true
+      script.onerror = reject
+      script.onload = script.onreadystatechange = function() {
+        const loadState = this.readyState
+        if (loadState && loadState !== 'loaded' && loadState !== 'complete') return
+        script.onload = script.onreadystatechange = null
+        resolve()
+      }
+      document.head.appendChild(script)
+    })
+  
+      win.activateDarkMode = function () {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      win.activateLightMode = function () {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+      const t = saveToLocal.get('theme')
+    
+          if (t === 'dark') activateDarkMode()
+          else if (t === 'light') activateLightMode()
+        
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        if (asideStatus === 'hide') {
+          document.documentElement.classList.add('hide-aside')
+        } else {
+          document.documentElement.classList.remove('hide-aside')
+        }
+      }
+    
+    const detectApple = () => {
+      if(/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)){
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+    })(window)</script><meta name="generator" content="Hexo 5.4.0"></head><body><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img is-center"><img src="https://img.alicdn.com/bao/uploaded/i4/2829330402/O1CN015fiVWf1Eq9xy6YFNT_!!0-item_pic.jpg" onerror="onerror=null;src='/img/friend_404.gif'" alt="avatar"/></div><div class="sidebar-site-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><hr/><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 博文</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="post-bg" id="page-header" style="background-image: url('https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01thiRe01Eq9yZ1XyVB_!!0-item_pic.jpg')"><nav id="nav"><span id="blog_name"><a id="site-name" href="/">可太南了</a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 首页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 博文</span></a></div><div class="menus_item"><a class="site-page" href="/tags/"><i class="fa-fw fas fa-tags"></i><span> 标签</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友情链接</span></a></div></div><div id="toggle-menu"><a class="site-page"><i class="fas fa-bars fa-fw"></i></a></div></div></nav><div id="post-info"><h1 class="post-title">jenkin插件的开发</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2022-05-18T12:08:20.000Z" title="发表于 2022-05-18 20:08:20">2022-05-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2022-05-26T09:13:04.405Z" title="更新于 2022-05-26 17:13:04">2022-05-26</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-wordcount"><i class="far fa-file-word fa-fw post-meta-icon"></i><span class="post-meta-label">字数总计:</span><span class="word-count">2k</span><span class="post-meta-separator">|</span><i class="far fa-clock fa-fw post-meta-icon"></i><span class="post-meta-label">阅读时长:</span><span>7分钟</span></span><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title="jenkin插件的开发"><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">阅读量:</span><span id="busuanzi_value_page_pv"></span></span></div></div></div></header><main class="layout" id="content-inner"><div id="post"><article class="post-content" id="article-container"><h2 id="背景"><a href="#背景" class="headerlink" title="背景"></a>背景</h2><p>在迁移飞书的过程中，原先的jenkins钉钉机器人功能也就需要迁移，别看他们工作方式很像，但是API不同，无法复用原先的钉钉通知插件。<br>不一样体现在哪里呢，举一个最简单的文字消息的例子</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 以下是两个平台的post请求的json body内容</span></span><br><span class="line"><span class="comment"># 钉钉</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;msgtype&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">  <span class="string">&quot;text&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;content&quot;</span>: <span class="string">&quot;example msg&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br><span class="line"><span class="comment"># 飞书，确实，不能显得我在抄是吧</span></span><br><span class="line">&#123;</span><br><span class="line">  <span class="string">&quot;msg_type&quot;</span>: <span class="string">&quot;text&quot;</span>,</span><br><span class="line">  <span class="string">&quot;content&quot;</span>: &#123;</span><br><span class="line">    <span class="string">&quot;text&quot;</span>: <span class="string">&quot;example msg&quot;</span></span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="解决方式"><a href="#解决方式" class="headerlink" title="解决方式"></a>解决方式</h2><ol>
+<li>找下现成的轮子<ol>
+<li>搜了一下字节有自己的一个<a target="_blank" rel="noopener" href="https://bytedance.feishu.cn/docs/doccnZv7I06KSAd9kOb0CsIjTTg">方案</a>，研究下来要配合Lark的一个进行使用，那个在内测阶段，也找不到相应的群聊机器人</li>
+</ol>
+</li>
+<li>搜一下大家的解决方案<ol>
+<li>写一个python脚本然后加一个shell执行的</li>
+<li>不行的话curl一下也行</li>
+</ol>
+</li>
+<li>不如自己写一个吧</li>
+</ol>
+<h2 id="Jenkins"><a href="#Jenkins" class="headerlink" title="Jenkins"></a>Jenkins</h2><p>Jenkins 是由 Java 语言开发的最流行的 CI/CD 引擎。</p>
+<p>如果自建过jenkins的话，应该都知道插件的丰富和重要性，不少方便的功能都是插件实现的，能想到的基本上都有插件实现。</p>
+<h2 id="首先你可能想自己搭一个jenkins"><a href="#首先你可能想自己搭一个jenkins" class="headerlink" title="首先你可能想自己搭一个jenkins"></a>首先你可能想自己搭一个jenkins</h2><h3 id="docker-compose的方式启动为例，不是本文重点，没有搭好的jenkin也可以开发"><a href="#docker-compose的方式启动为例，不是本文重点，没有搭好的jenkin也可以开发" class="headerlink" title="docker-compose的方式启动为例，不是本文重点，没有搭好的jenkin也可以开发"></a>docker-compose的方式启动为例，不是本文重点，没有搭好的jenkin也可以开发</h3><ul>
+<li>可以参考这里<a target="_blank" rel="noopener" href="https://www.jenkins.io/download/">https://www.jenkins.io/download/</a></li>
+<li>简单的docker-compose.yml实例  <figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">version: &#x27;3.7&#x27;</span><br><span class="line">services:</span><br><span class="line">jenkins:</span><br><span class="line">    image: jenkins/jenkins:lts-jdk11</span><br><span class="line">    privileged: true</span><br><span class="line">    user: root</span><br><span class="line">    restart: always</span><br><span class="line">    environment:</span><br><span class="line">    - JAVA_OPTS=-Dsun.jnu.encoding=UTF-8 -Dfile.encoding=UTF-8</span><br><span class="line">    - JAVA_TOOL_OPTIONS=-Dsun.jnu.encoding=UTF-8 -Dfile.encoding=UTF-8</span><br><span class="line">    - LC_ALL=C.UTF-8</span><br><span class="line">    ports:</span><br><span class="line">    - 8083:8080</span><br><span class="line">    - 50003:50000</span><br><span class="line">    container_name: my-jenkins-3</span><br><span class="line">    volumes:</span><br><span class="line">    - ~/jenkins_data:/var/jenkins_home</span><br><span class="line">    - /var/run/docker.sock:/var/run/docker.sock</span><br></pre></td></tr></table></figure></li>
+<li>docker-compose up -d</li>
+<li>更新方式<ul>
+<li>备份一下卷</li>
+<li>拉一下最新的docker镜像重启即可<h3 id="设置一些登录信息以及基础插件的安装"><a href="#设置一些登录信息以及基础插件的安装" class="headerlink" title="设置一些登录信息以及基础插件的安装"></a>设置一些登录信息以及基础插件的安装</h3></li>
+</ul>
+</li>
+<li>略</li>
+</ul>
+<h2 id="插件开发"><a href="#插件开发" class="headerlink" title="插件开发"></a>插件开发</h2><h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a><a target="_blank" rel="noopener" href="https://www.jenkins.io/zh/doc/developer/tutorial/prepare/">准备工作</a></h3><ul>
+<li>安装JAVA JDK</li>
+<li>安装Maven</li>
+<li>输入<code>mvn -v</code>确认准备工作OK</li>
+</ul>
+<h3 id="创建Helloworld插件来建立基础理解"><a href="#创建Helloworld插件来建立基础理解" class="headerlink" title="创建Helloworld插件来建立基础理解"></a>创建Helloworld插件来建立基础理解</h3><p>运行</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">mvn -U archetype:generate -Dfilter=io.jenkins.archetypes:</span><br></pre></td></tr></table></figure>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br></pre></td><td class="code"><pre><span class="line">Choose archetype:</span><br><span class="line">1: remote -&gt; io.jenkins.archetypes:empty-plugin (Skeleton of a Jenkins plugin with a POM and an empty source tree.)</span><br><span class="line">2: remote -&gt; io.jenkins.archetypes:global-configuration-plugin (Skeleton of a Jenkins plugin with a POM and an example piece of global configuration.)</span><br><span class="line">3: remote -&gt; io.jenkins.archetypes:global-shared-library (Uses the Jenkins Pipeline Unit mock library to test the usage of a Global Shared Library)</span><br><span class="line">4: remote -&gt; io.jenkins.archetypes:hello-world-plugin (Skeleton of a Jenkins plugin with a POM and an example build step.)</span><br><span class="line">5: remote -&gt; io.jenkins.archetypes:scripted-pipeline (Uses the Jenkins Pipeline Unit mock library to test the logic inside a Pipeline script.)</span><br><span class="line">Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): :</span><br><span class="line"></span><br><span class="line">Choose a number or apply filter (format: [groupId:]artifactId, case sensitive contains): : 4</span><br><span class="line">Choose io.jenkins.archetypes:hello-world-plugin version:</span><br><span class="line">1: 1.1</span><br><span class="line">2: 1.2</span><br><span class="line">3: 1.3</span><br><span class="line">4: 1.4</span><br><span class="line">5: 1.5</span><br><span class="line">6: 1.6</span><br><span class="line">7: 1.7</span><br><span class="line">8: 1.8</span><br><span class="line">9: 1.9</span><br><span class="line">10: 1.10</span><br><span class="line">11: 1.11</span><br><span class="line">12: 1.12</span><br><span class="line">13: 1.13</span><br><span class="line">Choose a number: 13: 13</span><br><span class="line">[INFO] Using property: groupId = unused</span><br><span class="line">[INFO] Using property: package = io.jenkins.plugins.sample</span><br><span class="line">[INFO] Using property: hostOnJenkinsGitHub = true</span><br><span class="line"></span><br><span class="line">[INFO] Using property: groupId = unused</span><br><span class="line">[INFO] Using property: package = io.jenkins.plugins.sample</span><br><span class="line">[INFO] Using property: hostOnJenkinsGitHub = true</span><br><span class="line">Define value for property &#x27;artifactId&#x27;: hello</span><br><span class="line">Define value for property &#x27;version&#x27; 1.0-SNAPSHOT: :</span><br><span class="line">Confirm properties configuration:</span><br><span class="line">groupId: unused</span><br><span class="line">package: io.jenkins.plugins.sample</span><br><span class="line">hostOnJenkinsGitHub: true</span><br><span class="line">artifactId: hello</span><br><span class="line">version: 1.0-SNAPSHOT</span><br><span class="line"> Y: :</span><br></pre></td></tr></table></figure>
+<p>按照提示依次选择hello-world-plugin, 最新版本, 输入插件id 回车到底。就创建好了hello目录。代码传到了<a target="_blank" rel="noopener" href="https://github.com/cafedeflore/jenkins-plugin-hello">这里</a></p>
+<p>插件目录结构:</p>
+<ul>
+<li>pom.xml： maven使用这个文件来构建插件。这里声明了插件的版本以及依赖关系</li>
+<li>src/main/java：java源码。包括插件注册、jelly视图背后的数据绑定、业务逻辑</li>
+<li>src/main/resources：jelly视图文件，用于在web界面上显示</li>
+<li>src/main/webapp：静态的资源文件，例如图片和html文件，还能写js，暂时可以忽略</li>
+<li>src/test: 测试文件</li>
+</ul>
+<p>我们结合实际效果，重点看下java源码和jelly视图文件。</p>
+<hr>
+<p>运行调试插件</p>
+<p>执行<code>mvn clean &amp;&amp; mvn hpi:run</code></p>
+<p>看到<code>Jenkins is fully up and running</code>代表本地已经启动了一个jenkins并且安装上了插件，可以访问<a target="_blank" rel="noopener" href="http://127.0.0.1:8080/jenkins%EF%BC%8C%E8%BF%9B%E8%A1%8C%E6%95%88%E6%9E%9C%E6%9F%A5%E7%9C%8B![](./jenkin-plugin/local-jenkins.jpg)">http://127.0.0.1:8080/jenkins，进行效果查看![](./jenkin-plugin/local-jenkins.jpg)</a></p>
+<p>helloword插件介入的是job的build流程，因此我们创建一个freestyle的job。在下图这个界面的Build栏目点击<code>说，你好，世界</code><br><img src="/posts/jenkins-plugin-development/build.jpg"><br>这里的对话框进行填写后，点击<code>save</code>按钮进行保存。</p>
+<p>至此，我们创建了一个Job，并且在这个job的构建（Build）部分，添加了一个插件功能。<br>我们跑一下这个Job，会发现输出多了我们设置的欢迎词<br><img src="/posts/jenkins-plugin-development/output.jpg"></p>
+<hr>
+<p>我们可以把插件分为两个功能部分</p>
+<ul>
+<li><p>参数的编辑和存储，<a target="_blank" rel="noopener" href="https://wiki.jenkins.io/display/JENKINS/Basic+guide+to+Jelly+usage+in+Jenkins">官方文档</a></p>
+<ul>
+<li>视图: <code>src/main/resources/io/jenkins/plugins/sample/HelloWorldBuilder</code>目录。<ul>
+<li>其中config.jelly是核心，定义了html表格以及用到的数据字段</li>
+<li>help-x.html和Messages.properties对应的是问号的内容和表格输入的校验文案</li>
+</ul>
+</li>
+<li>配合视图使用的java类<code>src/main/java/io/jenkins/plugins/sample/HelloWorldBuilder.java</code></li>
+</ul>
+<figure class="highlight java"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br></pre></td><td class="code"><pre><span class="line">    <span class="comment">// 视图关联部分代码节选</span></span><br><span class="line">      <span class="keyword">public</span> <span class="class"><span class="keyword">class</span> <span class="title">HelloWorldBuilder</span> <span class="keyword">extends</span> <span class="title">Builder</span> <span class="keyword">implements</span> <span class="title">SimpleBuildStep</span> </span>&#123;</span><br><span class="line"></span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">final</span> String name;</span><br><span class="line">        <span class="keyword">private</span> <span class="keyword">boolean</span> useFrench;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@DataBoundConstructor</span>  <span class="comment">// 将job存储的值读进来</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="title">HelloWorldBuilder</span><span class="params">(String name)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.name = name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// jelly渲染获取到值的关键，对应field中的name字段</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> String <span class="title">getName</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> name;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="comment">// 布尔值jelly渲染获取到值的关键，对应field中的useFrench字段</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">boolean</span> <span class="title">isUseFrench</span><span class="params">()</span> </span>&#123;</span><br><span class="line">            <span class="keyword">return</span> useFrench;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@DataBoundSetter</span>  <span class="comment">// 将job存储的值读进来</span></span><br><span class="line">        <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">setUseFrench</span><span class="params">(<span class="keyword">boolean</span> useFrench)</span> </span>&#123;</span><br><span class="line">            <span class="keyword">this</span>.useFrench = useFrench;</span><br><span class="line">        &#125;</span><br><span class="line"></span><br><span class="line">        <span class="meta">@Symbol(&quot;greet&quot;)</span></span><br><span class="line">        <span class="meta">@Extension</span></span><br><span class="line">        <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">final</span> <span class="class"><span class="keyword">class</span> <span class="title">DescriptorImpl</span> <span class="keyword">extends</span> <span class="title">BuildStepDescriptor</span>&lt;<span class="title">Builder</span>&gt; </span>&#123;</span><br><span class="line">          ...</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br><span class="line">* 实际build过程中的业务</span><br><span class="line">  * helloword插件实现的是在构建的output中打印一段字符串，我们要做的是覆写`SimpleBuildStep`中的perform函数即可</span><br><span class="line">  ```java</span><br><span class="line">    <span class="meta">@Override</span></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">perform</span><span class="params">(Run&lt;?, ?&gt; run, FilePath workspace, EnvVars env, Launcher launcher, TaskListener listener)</span> <span class="keyword">throws</span> InterruptedException, IOException </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (useFrench) &#123;</span><br><span class="line">            listener.getLogger().println(<span class="string">&quot;Bonjour, &quot;</span> + name + <span class="string">&quot;!&quot;</span>);</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            listener.getLogger().println(<span class="string">&quot;Hello, &quot;</span> + name + <span class="string">&quot;!&quot;</span>);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;</span><br></pre></td></tr></table></figure>
+<ul>
+<li>其中，listener是本次构建的运行监听器，调用它的logger可以输出内容到output</li>
+</ul>
+</li>
+</ul>
+<h4 id="其他扩展点"><a href="#其他扩展点" class="headerlink" title="其他扩展点"></a><a target="_blank" rel="noopener" href="https://javadoc.jenkins.io/hudson/ExtensionPoint.html">其他扩展点</a></h4><ul>
+<li>JobProperty</li>
+<li>Build Triggers</li>
+<li>Build</li>
+<li>Post-build</li>
+<li>RunListener</li>
+</ul>
+<p>结合实际需求，参考类似扩展点的插件源码，实现自己的需求</p>
+<h3 id="回到我们原始的需求"><a href="#回到我们原始的需求" class="headerlink" title="回到我们原始的需求"></a>回到我们原始的需求</h3><p>参考现有的钉钉机器人，配置上主要扩展了两个点（全局配置，和JobProperty的配置），业务上扩展了RunListener。<br>钉钉机器人迭代的功能已经比较复杂，我们从简来实现第一版。即，仅支持配置webhooks，在JobProperty输入飞书机器人的webhooks地址列表，以<code>&quot;;&quot;</code>分隔。发送时间则默认开始和结束均发送。<br><a target="_blank" rel="noopener" href="https://github.com/cafedeflore/feishu-plugin">仓库地址</a></p>
+<p>我们仅需要配置一个字符串即可，因此jelly模板<code>src/main/resources/io/jenkins/plugins/FeishuJobProperty/config.jelly</code>、以及<code>src/main/java/io/jenkins/plugins/FeishuJobProperty.java</code>数据配置java都很简洁</p>
+<p>业务实现部分，我们实现RunListener类并且复写掉onStarted以及onCompleted函数，在这两个函数里发送一个HTTP的POST请求到飞书webhooks地址即可</p>
+<ul>
+<li>发送到飞书需要的信息用过onStarted传入的run都可以拿到（参考dingding机器人）</li>
+<li>参照飞书的card规范美化消息，消息构建和发送封了一个FeishuService。<code>pom.xml</code>引入了okhttp以及fastjson，可能需要处理依赖冲突，最后把冲突的依赖都指定了版本</li>
+</ul>
+<hr>
+<p>Job的配置方式<br>从飞书复制机器人地址<br><img src="/posts/jenkins-plugin-development/feishu-robot-create.jpg"><br>在job的配置中填写地址并保存<br><img src="/posts/jenkins-plugin-development/jenins-deploy.jpg"><br>构建一次，飞书收到消息的实际效果<br><img src="/posts/jenkins-plugin-development/feishu.jpg"></p>
+<h3 id="参考资料"><a href="#参考资料" class="headerlink" title="参考资料"></a>参考资料</h3><ul>
+<li><a target="_blank" rel="noopener" href="https://www.jenkins.io/doc/developer/plugin-development/">插件开发官方文档</a></li>
+</ul>
+<h2 id="插件的发布"><a href="#插件的发布" class="headerlink" title="插件的发布"></a>插件的发布</h2><h3 id="打包自己用"><a href="#打包自己用" class="headerlink" title="打包自己用"></a>打包自己用</h3><ol>
+<li>打包<code>mvn clean &amp;&amp; mvn package</code></li>
+<li>在target目录下找到生成的hpi文件</li>
+<li>到jenkins的全局系统管理 -&gt; 插件管理 -&gt; 上传插件选择hpi文件 -&gt; 自动重启jenkins即可</li>
+</ol>
+<h3 id="发布到官方仓库"><a href="#发布到官方仓库" class="headerlink" title="发布到官方仓库"></a>发布到官方仓库</h3><ul>
+<li>仓库上传到自己的github</li>
+<li>在<a target="_blank" rel="noopener" href="https://github.com/jenkins-infra/repository-permissions-updater/issues">这里</a>新建issue</li>
+<li>后续的步骤持续更新中，目前github issue相关人员的回复是很快的，表示会深入看一下</li>
+</ul>
+</article><div class="post-copyright"><div class="post-copyright__author"><span class="post-copyright-meta">文章作者: </span><span class="post-copyright-info"><a href="http://linnan.fun">linnan</a></span></div><div class="post-copyright__type"><span class="post-copyright-meta">文章链接: </span><span class="post-copyright-info"><a href="http://linnan.fun/posts/jenkins-plugin-development/">http://linnan.fun/posts/jenkins-plugin-development/</a></span></div><div class="post-copyright__notice"><span class="post-copyright-meta">版权声明: </span><span class="post-copyright-info">本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" target="_blank">CC BY-NC-SA 4.0</a> 许可协议。转载请注明来自 <a href="http://linnan.fun" target="_blank">可太南了</a>！</span></div></div><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/jenkins/">jenkins</a><a class="post-meta__tags" href="/tags/dingding/">dingding</a><a class="post-meta__tags" href="/tags/feishu/">feishu</a></div><div class="post_share"><div class="social-share" data-image="https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01thiRe01Eq9yZ1XyVB_!!0-item_pic.jpg" data-sites="wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/social-share.js/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/gh/overtrue/share.js@master/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><div class="prev-post pull-left"><a href="/posts/rtmp-flv/"><img class="prev-cover" src="https://img.alicdn.com/bao/uploaded/i4/2829330402/O1CN01FJ4HZN1Eq9yesBVAr_!!0-item_pic.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of previous post"><div class="pagination-info"><div class="label">上一篇</div><div class="prev_info">视频直播技术简介以及自建直播服务器</div></div></a></div><div class="next-post pull-right"><a href="/posts/caddy-wordpress-github-pages-hexo/"><img class="next-cover" src="https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01D7O8ey1Eq9xrV2L04_!!0-item_pic.jpg" onerror="onerror=null;src='/img/404.jpg'" alt="cover of next post"><div class="pagination-info"><div class="label">下一篇</div><div class="next_info">Caddy + wordpress VS Github pages + hexo</div></div></a></div></nav><hr/><div id="post-comment"><div class="comment-head"><div class="comment-headline"><i class="fas fa-comments fa-fw"></i><span> 评论</span></div></div><div class="comment-wrap"><div><div class="vcomment" id="vcomment"></div></div></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info"><div class="is-center"><div class="avatar-img"><img src="https://img.alicdn.com/bao/uploaded/i4/2829330402/O1CN015fiVWf1Eq9xy6YFNT_!!0-item_pic.jpg" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info__name">linnan</div><div class="author-info__description"></div></div><div class="card-info-data site-data is-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">3</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">8</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">0</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/cafedeflore"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons is-center"><a class="social-icon" href="https://github.com/cafedeflore" target="_blank" title="Github"><i class="fab fa-github"></i></a><a class="social-icon" href="mailto:zjucolin@gmail.com" target="_blank" title="Email"><i class="fas fa-envelope"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%83%8C%E6%99%AF"><span class="toc-number">1.</span> <span class="toc-text">背景</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%A7%A3%E5%86%B3%E6%96%B9%E5%BC%8F"><span class="toc-number">2.</span> <span class="toc-text">解决方式</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Jenkins"><span class="toc-number">3.</span> <span class="toc-text">Jenkins</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A6%96%E5%85%88%E4%BD%A0%E5%8F%AF%E8%83%BD%E6%83%B3%E8%87%AA%E5%B7%B1%E6%90%AD%E4%B8%80%E4%B8%AAjenkins"><span class="toc-number">4.</span> <span class="toc-text">首先你可能想自己搭一个jenkins</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#docker-compose%E7%9A%84%E6%96%B9%E5%BC%8F%E5%90%AF%E5%8A%A8%E4%B8%BA%E4%BE%8B%EF%BC%8C%E4%B8%8D%E6%98%AF%E6%9C%AC%E6%96%87%E9%87%8D%E7%82%B9%EF%BC%8C%E6%B2%A1%E6%9C%89%E6%90%AD%E5%A5%BD%E7%9A%84jenkin%E4%B9%9F%E5%8F%AF%E4%BB%A5%E5%BC%80%E5%8F%91"><span class="toc-number">4.1.</span> <span class="toc-text">docker-compose的方式启动为例，不是本文重点，没有搭好的jenkin也可以开发</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%AE%BE%E7%BD%AE%E4%B8%80%E4%BA%9B%E7%99%BB%E5%BD%95%E4%BF%A1%E6%81%AF%E4%BB%A5%E5%8F%8A%E5%9F%BA%E7%A1%80%E6%8F%92%E4%BB%B6%E7%9A%84%E5%AE%89%E8%A3%85"><span class="toc-number">4.2.</span> <span class="toc-text">设置一些登录信息以及基础插件的安装</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E4%BB%B6%E5%BC%80%E5%8F%91"><span class="toc-number">5.</span> <span class="toc-text">插件开发</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%87%86%E5%A4%87%E5%B7%A5%E4%BD%9C"><span class="toc-number">5.1.</span> <span class="toc-text">准备工作</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAHelloworld%E6%8F%92%E4%BB%B6%E6%9D%A5%E5%BB%BA%E7%AB%8B%E5%9F%BA%E7%A1%80%E7%90%86%E8%A7%A3"><span class="toc-number">5.2.</span> <span class="toc-text">创建Helloworld插件来建立基础理解</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%85%B6%E4%BB%96%E6%89%A9%E5%B1%95%E7%82%B9"><span class="toc-number">5.2.1.</span> <span class="toc-text">其他扩展点</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%9B%9E%E5%88%B0%E6%88%91%E4%BB%AC%E5%8E%9F%E5%A7%8B%E7%9A%84%E9%9C%80%E6%B1%82"><span class="toc-number">5.3.</span> <span class="toc-text">回到我们原始的需求</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%82%E8%80%83%E8%B5%84%E6%96%99"><span class="toc-number">5.4.</span> <span class="toc-text">参考资料</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%8F%92%E4%BB%B6%E7%9A%84%E5%8F%91%E5%B8%83"><span class="toc-number">6.</span> <span class="toc-text">插件的发布</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%89%93%E5%8C%85%E8%87%AA%E5%B7%B1%E7%94%A8"><span class="toc-number">6.1.</span> <span class="toc-text">打包自己用</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%8F%91%E5%B8%83%E5%88%B0%E5%AE%98%E6%96%B9%E4%BB%93%E5%BA%93"><span class="toc-number">6.2.</span> <span class="toc-text">发布到官方仓库</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item"><a class="thumbnail" href="/posts/rtmp-flv/" title="视频直播技术简介以及自建直播服务器"><img src="https://img.alicdn.com/bao/uploaded/i4/2829330402/O1CN01FJ4HZN1Eq9yesBVAr_!!0-item_pic.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="视频直播技术简介以及自建直播服务器"/></a><div class="content"><a class="title" href="/posts/rtmp-flv/" title="视频直播技术简介以及自建直播服务器">视频直播技术简介以及自建直播服务器</a><time datetime="2022-05-24T12:32:32.000Z" title="发表于 2022-05-24 20:32:32">2022-05-24</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/jenkins-plugin-development/" title="jenkin插件的开发"><img src="https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01thiRe01Eq9yZ1XyVB_!!0-item_pic.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="jenkin插件的开发"/></a><div class="content"><a class="title" href="/posts/jenkins-plugin-development/" title="jenkin插件的开发">jenkin插件的开发</a><time datetime="2022-05-18T12:08:20.000Z" title="发表于 2022-05-18 20:08:20">2022-05-18</time></div></div><div class="aside-list-item"><a class="thumbnail" href="/posts/caddy-wordpress-github-pages-hexo/" title="Caddy + wordpress VS Github pages + hexo"><img src="https://img.alicdn.com/bao/uploaded/i1/2829330402/O1CN01D7O8ey1Eq9xrV2L04_!!0-item_pic.jpg" onerror="this.onerror=null;this.src='/img/404.jpg'" alt="Caddy + wordpress VS Github pages + hexo"/></a><div class="content"><a class="title" href="/posts/caddy-wordpress-github-pages-hexo/" title="Caddy + wordpress VS Github pages + hexo">Caddy + wordpress VS Github pages + hexo</a><time datetime="2021-07-28T23:28:29.000Z" title="发表于 2021-07-29 07:28:29">2021-07-29</time></div></div></div></div></div></div></main><footer id="footer"><div id="footer-wrap"><div class="copyright">&copy;2020 - 2022 By linnan</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="浅色和深色模式转换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside_config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><a id="to_comment" href="#post-comment" title="直达评论"><i class="fas fa-comments"></i></a><button id="go-up" type="button" title="回到顶部"><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui/dist/fancybox.umd.js"></script><div class="js-pjax"><script>function loadValine () {
+  function initValine () {
+    const valine = new Valine(Object.assign({
+      el: '#vcomment',
+      appId: 'PiikUgXaamfdL7rDVrJJkdyg-gzGzoHsz',
+      appKey: 'bu4Oezp80r8xRPElDhmki6bb',
+      avatar: 'mp',
+      serverURLs: '',
+      emojiMaps: "",
+      path: window.location.pathname,
+      visitor: false
+    }, null))
+  }
+
+  if (typeof Valine === 'function') initValine() 
+  else getScript('https://cdn.jsdelivr.net/npm/valine/dist/Valine.min.js').then(initValine)
+}
+
+if ('Valine' === 'Valine' || !false) {
+  if (false) btf.loadComment(document.getElementById('vcomment'),loadValine)
+  else setTimeout(loadValine, 0)
+} else {
+  function loadOtherComment () {
+    loadValine()
+  }
+}</script></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
